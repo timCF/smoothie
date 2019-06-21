@@ -53,19 +53,16 @@ data TokenKind = TokenSmoothie | TokenSubstance
 data Token a = Token a String | TokenComma | TokenMinus
 
 tokenize :: String -> [Token TokenKind]
-tokenize s =
-  let (_, ts) = foldl post (True, []) (foldr go [] s) in reverse ts
+tokenize = foldr go []
   where
-    post :: (Bool, [Token TokenKind]) -> Token () -> (Bool, [Token TokenKind])
-    post (True, ts) (Token () td)  = (False, Token TokenSmoothie td : ts)
-    post (False, ts) (Token () td) = (False, Token TokenSubstance td : ts)
-    post (flag, ts) TokenComma     = (flag, TokenComma : ts)
-    post (flag, ts) TokenMinus     = (flag, TokenMinus : ts)
-    go :: Char -> [Token ()] -> [Token ()]
+    go :: Char -> [Token TokenKind] -> [Token TokenKind]
     go ',' ts               = TokenComma : ts
     go '-' ts               = TokenMinus : ts
-    go x (Token () xs : ts) = Token () (x : xs) : ts
-    go x ts                 = Token () [x] : ts
+    go x (Token tk xs : ts) = Token (infer x tk) (x : xs) : ts
+    go x ts                 = Token (infer x TokenSubstance) [x]  : ts
+    infer :: Char -> TokenKind -> TokenKind
+    infer _ TokenSmoothie = TokenSmoothie
+    infer x TokenSubstance = if isUpper x then TokenSmoothie else TokenSubstance
 
 newtype ExpSubstance = ExpMinus Substance
 data ExpSmoothie = ExpSmoothie Smoothie [ExpSubstance]
