@@ -77,7 +77,7 @@ parse = go []
     go (ExpSmoothie x es : rest) (TokenMinus : Token TokenSubstance s : ts) = go (ExpSmoothie x (ExpMinus (readHR s) : es) : rest) ts
 
 eval :: ExpSmoothie -> [Substance]
-eval (ExpSmoothie se es) = foldl go (defaultSubstances se) es
+eval (ExpSmoothie x es) = foldl go (defaultSubstances x) es
   where
     go :: [Substance] -> ExpSubstance -> [Substance]
     go ss (ExpMinus s) = filter (/= s) ss
@@ -86,8 +86,8 @@ showIngredients :: [Substance] -> String
 showIngredients ss = foldr go [] (sort $ showHR <$> ss)
   where
     go :: String -> String -> String
-    go w [] = w
-    go w ws = w ++ "," ++ ws
+    go w ""  = w
+    go w acc = w ++ "," ++ acc
 
 ingredients :: String -> String
 ingredients = showIngredients . eval . head . parse . tokenize
