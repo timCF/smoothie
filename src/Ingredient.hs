@@ -75,6 +75,7 @@ parse = go []
     go es (TokenComma : ts) = go es ts
     go es (Token TokenSmoothie s : ts) = go (ExpSmoothie (readHR s) [] : es) ts
     go (ExpSmoothie x es : rest) (TokenMinus : Token TokenSubstance s : ts) = go (ExpSmoothie x (ExpMinus (readHR s) : es) : rest) ts
+    -- patterns are not exhaustive, if input syntax is not valid - program will exit here
 
 eval :: ExpSmoothie -> [Substance]
 eval (ExpSmoothie x es) = foldl go (defaultSubstances x) es
